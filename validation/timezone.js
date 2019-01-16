@@ -11,12 +11,12 @@ module.exports = validateTimezone = data => {
 
   // Checks if location is empty
   if (Validator.isEmpty(data.location)) {
-    errors.location = 'location field is required';
+    errors.location = 'Location field is required';
   }
 
   // Checks if timestamp is empty
   if (Validator.isEmpty(data.timestamp)) {
-    errors.timestamp = 'timestamp field is required';
+    errors.timestamp = 'Timestamp field is required';
   }
 
   return {

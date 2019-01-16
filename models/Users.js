@@ -15,6 +15,10 @@ const UserSchema = new Schema({
     type: String,
     required: true
   },
+  plan: {
+    type: String,
+    required: true
+  },
   credits: {
     type: Number,
     default: 0

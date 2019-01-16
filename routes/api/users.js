@@ -23,31 +23,55 @@ router.post('/register', (req, res) => {
     return res.status(400).json(errors);
   }
 
-  User.findOne({ email: req.body.email }).then(user => {
-    if (user) {
-      errors.email = 'Email already exists';
-      return res.status(400).json(errors);
-    } else {
-      const newUser = new User({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password
-      });
+  // Check if user with email already exists
+  User.findOne({ email: req.body.email })
+    .then(user => {
+      if (user) {
+        errors.email = 'Email already exists';
+        return res.status(400).json(errors);
+      } else {
+        let credits = 0;
 
-      bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
-          if (err) {
-            throw err;
-          }
-          newUser.password = hash;
-          newUser
-            .save()
-            .then(user => res.json(user))
-            .catch(err => console.log(err));
+        // Set credits based on plan chosen
+        switch (req.body.plan) {
+          case 'basic':
+            credits = 10;
+            break;
+          case 'plus':
+            credits = 20;
+            break;
+          case 'premium':
+            credits = 30;
+            break;
+          default:
+            errors.plan = 'Must be basic, plus, or premium';
+        }
+
+        // Create new user data
+        const newUser = new User({
+          name: req.body.name,
+          email: req.body.email,
+          password: req.body.password,
+          plan: req.body.plan,
+          credits: credits
         });
-      });
-    }
-  });
+
+        // Encrypt data before storing in DB
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(newUser.password, salt, (err, hash) => {
+            if (err) {
+              throw err;
+            }
+            newUser.password = hash;
+            newUser
+              .save()
+              .then(user => res.json(user))
+              .catch(err => res.json({ error: err.message }));
+          });
+        });
+      }
+    })
+    .catch(err => res.json({ error: err.message }));
 });
 
 // @route   GET api/users/login
@@ -55,14 +79,13 @@ router.post('/register', (req, res) => {
 // @access  Public
 router.post('/login', (req, res) => {
   const { errors, isValid } = validateLoginInput(req.body);
+  const email = req.body.email;
+  const password = req.body.password;
 
-  // Check Validation
+  // Check if any errors
   if (!isValid) {
     return res.status(400).json(errors);
   }
-
-  const email = req.body.email;
-  const password = req.body.password;
 
   // Find user by email
   User.findOne({ email }).then(user => {
@@ -71,7 +94,6 @@ router.post('/login', (req, res) => {
       errors.email = 'User not found';
       return res.status(404).json(errors);
     }
-
     // Verify password
     bcrypt.compare(password, user.password).then(isMatch => {
       if (isMatch) {
@@ -82,17 +104,12 @@ router.post('/login', (req, res) => {
           email: user.email
         };
         // Sign token and return to user
-        jwt.sign(
-          payload,
-          process.env.SECRET_OR_KEY,
-          { expiresIn: 3600 },
-          (err, token) => {
-            res.json({
-              success: true,
-              token: `Bearer ${token}`
-            });
-          }
-        );
+        jwt.sign(payload, process.env.SECRET_OR_KEY, { expiresIn: 3600 }, (err, token) => {
+          res.json({
+            success: true,
+            token: `Bearer ${token}`
+          });
+        });
       } else {
         errors.password = 'Password incorrect';
         return res.status(400).json(errors);
@@ -100,20 +117,5 @@ router.post('/login', (req, res) => {
     });
   });
 });
-
-// @route   GET api/users/current
-// @desc    Return current user
-// @access  Private
-router.get(
-  '/current',
-  passport.authenticate('jwt', { session: false }),
-  (req, res) => {
-    res.json({
-      id: req.user.id,
-      name: req.user.name,
-      email: req.user.email
-    });
-  }
-);
 
 module.exports = router;

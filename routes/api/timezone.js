@@ -22,48 +22,52 @@ const createAccountLimiter = rateLimit({
 // @route   POST api/timezone/
 // @desc    Make timezone requests
 // @access  Public
-router.post(
-  '/',
-  passport.authenticate('jwt', { session: false }),
-  createAccountLimiter,
-  (req, res) => {
-    const { errors, isValid } = validateTimezone(req.body);
-    // Check Validation
-    if (!isValid) {
-      // Return any errors with 400 status
-      return res.status(400).json(errors);
-    }
+router.post('/', passport.authenticate('jwt', { session: false }), createAccountLimiter, (req, res) => {
+  const { errors, isValid } = validateTimezone(req.body);
 
-    // Decode jwt to get email address
-    const token = req.headers.authorization.replace('Bearer ', '');
-    const decoded = jwt.verify(token, process.env.SECRET_OR_KEY);
-    const email = decoded.email;
-
-    // Use email to get users credits
-    User.findOne({ email }).then(user => {
-      const credits = user.credits;
-    });
-
-    // Format timezone url
-    const apikey = process.env.API_KEY;
-    const location = req.body.location;
-    const timestamp = req.body.timestamp;
-    const timezone_url = `https://maps.googleapis.com/maps/api/timezone/json?location=${location}&timestamp=${timestamp}&key=${apikey}`;
-
-    // POST request to timezone api
-    axios
-      .post(timezone_url)
-      .then(function(response) {
-        res.status(200).json({
-          data: response.data
-        });
-      })
-      .catch(function(err) {
-        res.json({
-          err
-        });
-      });
+  // Check Validation
+  if (!isValid) {
+    // Return any errors with 400 status
+    return res.status(400).json(errors);
   }
-);
+
+  // Decode jwt to get email address
+  const token = req.headers.authorization.replace('Bearer ', '');
+  const decoded = jwt.verify(token, process.env.SECRET_OR_KEY);
+  const email = decoded.email;
+
+  // Use email to get users credits
+  User.findOne({ email }).then(user => {
+    const credits = user.credits;
+
+    // Check if user has enough credits
+    if (credits <= 2) {
+      res.json({ credits: 'Not enough credits' });
+    } else {
+      // Format timezone url
+      const apikey = process.env.API_KEY;
+      const location = req.body.location;
+      const timestamp = req.body.timestamp;
+      const timezone_url = `https://maps.googleapis.com/maps/api/timezone/json?location=${location}&timestamp=${timestamp}&key=${apikey}`;
+
+      // POST request to timezone api
+      axios
+        .post(timezone_url)
+        .then(function(response) {
+          res.status(200).json({
+            data: response.data
+          });
+        })
+        .then(function() {
+          const newCredits = credits - 2;
+          User.findOneAndUpdate({ email }, { credits: newCredits }).catch(function(err) {
+            res.json({
+              err
+            });
+          });
+        });
+    }
+  });
+});
 
 module.exports = router;
