@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const passport = require('passport');
 
 // Load Input Validation
 const validateRegisterInput = require('../../validation/register');
@@ -17,17 +16,18 @@ const User = require('../../models/Users');
 // @access  Public
 router.post('/register', (req, res) => {
   const { errors, isValid } = validateRegisterInput(req.body);
+  const { username, name, password, plan } = req.body;
 
   // Check Validation
   if (!isValid) {
     return res.status(400).json(errors);
   }
 
-  // Check if user with email already exists
-  User.findOne({ email: req.body.email })
+  // Check if user with username already exists
+  User.findOne({ username })
     .then(user => {
       if (user) {
-        errors.email = 'Email already exists';
+        errors.username = 'Username already exists';
         return res.status(400).json(errors);
       } else {
         let credits = 0;
@@ -49,10 +49,11 @@ router.post('/register', (req, res) => {
 
         // Create new user data
         const newUser = new User({
-          name: req.body.name,
-          email: req.body.email,
-          password: req.body.password,
-          plan: req.body.plan,
+          username,
+          name,
+          username,
+          password,
+          plan,
           credits: credits
         });
 
@@ -79,19 +80,18 @@ router.post('/register', (req, res) => {
 // @access  Public
 router.post('/login', (req, res) => {
   const { errors, isValid } = validateLoginInput(req.body);
-  const email = req.body.email;
-  const password = req.body.password;
+  const { username, password } = req.body;
 
   // Check if any errors
   if (!isValid) {
     return res.status(400).json(errors);
   }
 
-  // Find user by email
-  User.findOne({ email }).then(user => {
+  // Find user by username
+  User.findOne({ username }).then(user => {
     // Check for user
     if (!user) {
-      errors.email = 'User not found';
+      errors.username = 'User not found';
       return res.status(404).json(errors);
     }
     // Verify password
@@ -101,6 +101,7 @@ router.post('/login', (req, res) => {
         const payload = {
           id: user.id,
           name: user.name,
+          username: user.username,
           email: user.email
         };
         // Sign token and return to user

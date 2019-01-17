@@ -6,11 +6,20 @@ module.exports = alidateRegisterInput = data => {
 
   // Checks if data is undefined or null,
   // If undefined or null, set data to ''
+  data.username = !isEmpty(data.username) ? data.username : '';
   data.name = !isEmpty(data.name) ? data.name : '';
   data.email = !isEmpty(data.email) ? data.email : '';
   data.password = !isEmpty(data.password) ? data.password : '';
   data.password2 = !isEmpty(data.password2) ? data.password2 : '';
   data.plan = !isEmpty(data.plan) ? data.plan : '';
+
+  if (!Validator.isLength(data.username, { min: 6, max: 30 })) {
+    errors.username = 'username must be between 6 and 30 characters';
+  }
+
+  if (Validator.isEmpty(data.username)) {
+    errors.username = 'username field is required';
+  }
 
   if (!Validator.isLength(data.name, { min: 2, max: 30 })) {
     errors.name = 'Name must be between 2 and 30 characters';
