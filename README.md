@@ -12,9 +12,9 @@ This is a backend api service which will allow new and exisiting user to do the 
 * Users will not be able to make anymore requests if they do not have enough credits
 
 ## TODOS
-* Route to handle bulk requests
 * Convert DB from MongoDB to DynamoDB
-* Add more sophisticated validations
+* Add more sophisticated validations for all api endpoints
+* Debug batch api route, storing axios response into results array
 
 ## Modules used
 * Express
@@ -26,3 +26,13 @@ This is a backend api service which will allow new and exisiting user to do the 
 * Bcrypt
 * Validator
 * Express-Rate-Limit
+
+## Routes
+* POST api/users/register
+  - Required: username, name, password, plan
+* POST api/users/login
+  - Required: username, password
+* POST api/geocoding
+  - Required: JWT Token
+* POST POST api/timezone
+  - Required: JWT Token
