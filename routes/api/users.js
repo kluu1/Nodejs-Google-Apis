@@ -116,7 +116,7 @@ router.post('/register', (req, res) => {
     .catch(err => res.json({ error: err.message }));
 });
 
-// @route   GET api/users/login
+// @route   POST api/users/login
 // @desc    Login user / Returning JWT Token
 // @access  Public
 router.post('/login', (req, res) => {
@@ -152,9 +152,6 @@ router.post('/login', (req, res) => {
             token: `Bearer ${token}`
           });
         });
-      } else {
-        errors.password = 'Password incorrect';
-        return res.status(400).json(errors);
       }
     });
   });

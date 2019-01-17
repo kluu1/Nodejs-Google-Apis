@@ -65,6 +65,9 @@ router.post('/', passport.authenticate('jwt', { session: false }), createAccount
               err
             });
           });
+        })
+        .catch(err => {
+          res.json({ error: err.message });
         });
     }
   });
