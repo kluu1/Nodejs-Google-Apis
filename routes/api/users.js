@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
+const Promise = require('bluebird');
 
 // Load Input Validation
 const validateRegisterInput = require('../../validation/register');
@@ -10,6 +12,45 @@ const validateLoginInput = require('../../validation/login');
 
 // Load User model
 const User = require('../../models/Users');
+
+/* TODO: DEBUG why axios response is not getting pushed into array
+router.post('/batch', (req, res) => {
+  // Store incoming addresses into array
+  let addresses = req.body.addresses;
+  let result = [];
+
+  // Using Promise.map:
+  Promise.map(
+    addresses,
+    function(address) {
+      // Promise.map awaits for returned promises as well.
+      const apikey = process.env.API_KEY;
+      address = address.replace(/\s/g, '+');
+      const geocoding_url = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${apikey}`;
+      return callGeocoding(geocoding_url);
+    },
+    { concurrency: 5 }
+  ).then(function() {
+    console.log(result);
+  });
+});
+
+function callGeocoding(geocoding_url) {
+  // POST request to geocoding api
+  axios
+    .post(geocoding_url)
+    .then(response => {
+      result.push(response.data);
+      console.log(result);
+    })
+    .then(
+      function() {
+        console.log('done');
+      },
+      { concurrency: 5 }
+    );
+}
+*/
 
 // @route   GET api/users/register
 // @desc    Register user
