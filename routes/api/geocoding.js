@@ -51,18 +51,21 @@ router.post('/', passport.authenticate('jwt', { session: false }), createAccount
       // POST request to geocoding api
       axios
         .post(geocoding_url)
-        .then(function(response) {
+        .then(response => {
           res.status(200).json({
             data: response.data
           });
         })
-        .then(function() {
+        .then(() => {
           const newCredits = credits - 1;
-          User.findOneAndUpdate({ email }, { credits: newCredits }).catch(function(err) {
+          User.findOneAndUpdate({ email }, { credits: newCredits }).catch(err => {
             res.json({
               err
             });
           });
+        })
+        .catch(err => {
+          res.json({ error: err.message });
         });
     }
   });

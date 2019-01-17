@@ -53,14 +53,14 @@ router.post('/', passport.authenticate('jwt', { session: false }), createAccount
       // POST request to timezone api
       axios
         .post(timezone_url)
-        .then(function(response) {
+        .then(response => {
           res.status(200).json({
             data: response.data
           });
         })
-        .then(function() {
+        .then(() => {
           const newCredits = credits - 2;
-          User.findOneAndUpdate({ email }, { credits: newCredits }).catch(function(err) {
+          User.findOneAndUpdate({ email }, { credits: newCredits }).catch(err => {
             res.json({
               err
             });

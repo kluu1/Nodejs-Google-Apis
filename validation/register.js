@@ -1,7 +1,7 @@
 const Validator = require('validator');
 const isEmpty = require('./is-empty');
 
-module.exports = function validateRegisterInput(data) {
+module.exports = alidateRegisterInput = data => {
   let errors = {};
 
   // Checks if data is undefined or null,
