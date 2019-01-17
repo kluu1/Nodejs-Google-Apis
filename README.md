@@ -11,6 +11,10 @@ This is a backend api service which will allow new and exisiting user to do the 
 * Users can only make max of 15 requests per hour
 * Users will not be able to make anymore requests if they do not have enough credits
 
+## TODOS
+* New route to hanlde bulk requests
+* More 
+
 ## Modules used
 * Express
 * MongoDB
