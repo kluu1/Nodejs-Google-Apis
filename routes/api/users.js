@@ -52,7 +52,7 @@ function callGeocoding(geocoding_url) {
 }
 */
 
-// @route   GET api/users/register
+// @route   POST api/users/register
 // @desc    Register user
 // @access  Public
 router.post('/register', (req, res) => {
