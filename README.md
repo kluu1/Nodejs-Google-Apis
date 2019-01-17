@@ -3,17 +3,18 @@
 ## Summary
 This is a backend api service which will allow new and exisiting user to do the follow:
 * Register new user
-  * Required inputs: name, email, password, plan
+  * Required inputs: username, name, email, password, plan
   * User will recieve 10, 20, or 30 tokens based on plan selected
-* Login with email and password (returns jwt token)
+* Login with username and password (returns jwt token)
 * Make requests to geocoding api for 1 credits
 * Make requests to timezone api for 2 credits
 * Users can only make max of 15 requests per hour
 * Users will not be able to make anymore requests if they do not have enough credits
 
 ## TODOS
-* New route to hanlde bulk requests
-* More 
+* Route to handle bulk requests
+* Convert DB from MongoDB to DynamoDB
+* Add more sophisticated validations
 
 ## Modules used
 * Express
