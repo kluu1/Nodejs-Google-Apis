@@ -1,8 +1,8 @@
 const Validator = require('validator');
 const isEmpty = require('./is-empty');
 
-module.exports = validateLoginInput = data => {
-  let errors = {};
+module.exports = validateLoginInput = (data) => {
+  const errors = {};
 
   // Checks if data is undefined or null,
   // If undefined or null, set data to ''
@@ -19,6 +19,6 @@ module.exports = validateLoginInput = data => {
 
   return {
     errors,
-    isValid: isEmpty(errors)
+    isValid: isEmpty(errors),
   };
 };

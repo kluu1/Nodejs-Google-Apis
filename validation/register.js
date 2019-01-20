@@ -1,8 +1,8 @@
 const Validator = require('validator');
 const isEmpty = require('./is-empty');
 
-module.exports = alidateRegisterInput = data => {
-  let errors = {};
+module.exports = alidateRegisterInput = (data) => {
+  const errors = {};
 
   // Checks if data is undefined or null,
   // If undefined or null, set data to ''
@@ -71,6 +71,6 @@ module.exports = alidateRegisterInput = data => {
 
   return {
     errors,
-    isValid: isEmpty(errors)
+    isValid: isEmpty(errors),
   };
 };
