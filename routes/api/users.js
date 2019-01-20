@@ -32,6 +32,7 @@ router.post('/register', (req, res) => {
       ':i': username,
     },
   };
+
   docClient.query(params, (err, user) => {
     if (err) {
       res.status(500).json({ Error: err.message });

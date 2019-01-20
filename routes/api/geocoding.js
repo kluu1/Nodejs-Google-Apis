@@ -11,6 +11,7 @@ const router = express.Router();
 
 // Load validation
 const validateGeocoding = require('../../validation/geocoding');
+const validateGeocodingBatch = require('../../validation/geocodingbatch');
 
 // Create Limiter - 15 requests per hour
 const createAccountLimiter = rateLimit({
@@ -23,6 +24,13 @@ const createAccountLimiter = rateLimit({
 // @desc    Send batch requests and only run 5 concurrently
 // @access  Private
 router.post('/batch', (req, res) => {
+  const { errors, isValid } = validateGeocodingBatch(req.body);
+  // Check if req params are valid
+  if (!isValid) {
+    // Return any errors with 400 status
+    return res.status(400).json(errors);
+  }
+
   const { addresses } = req.body;
 
   // Async function for calling the Geocoding API
@@ -46,6 +54,8 @@ router.post('/batch', (req, res) => {
     { concurrency: 5 },
   ).then(() => {
     res.json({ data });
+  }).catch((err) => {
+    res.json({ error: err });
   });
 });
 
