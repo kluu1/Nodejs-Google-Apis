@@ -14,8 +14,7 @@ This is a backend api service which will allow new and exisiting user to do the 
 
 ## Modules used
 * Express
-* MongoDB
-* Mongoose
+* Aws-sdk
 * Body-Parser
 * Passport
 * Jsonwebtoken
