@@ -8,13 +8,9 @@ This is a backend api service which will allow new and exisiting user to do the 
 * Login with username and password (returns jwt token)
 * Make requests to geocoding api for 1 credits
 * Make requests to timezone api for 2 credits
+* Make a batch request to geocoding api that will run 5 calls concurrently
 * Users can only make max of 15 requests per hour
 * Users will not be able to make anymore requests if they do not have enough credits
-
-## TODOS
-* Convert DB from MongoDB to DynamoDB
-* Add more sophisticated validations for all api endpoints
-* Debug batch api route, storing axios response into results array
 
 ## Modules used
 * Express
@@ -33,6 +29,9 @@ This is a backend api service which will allow new and exisiting user to do the 
 * POST api/users/login
   - Required: username, password
 * POST api/geocoding
-  - Required: JWT Token
+  - Required: JWT Token, address
+* POST api/geocoding/batch
+  - Required: JWT Token, Object with array of addresses
+  - { "addresses": [ "3200 Holcomb Bridge Rd", "5805 State Bridge Rd" }
 * POST POST api/timezone
   - Required: JWT Token
