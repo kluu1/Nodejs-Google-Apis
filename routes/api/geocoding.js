@@ -80,7 +80,7 @@ router.post(
     const { username } = decoded;
 
     // Get user credits
-    const credits = await users.getCredits(username);
+    const { credits } = await users.getUserInfo(username);
 
     // Check if user has enough credits
     if (credits === 0) {

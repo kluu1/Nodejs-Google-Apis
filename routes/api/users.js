@@ -1,9 +1,10 @@
 const config = require('config');
-const AWS = require('aws-sdk');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const express = require('express');
 const router = express.Router();
+
+const users = require('../../controllers/usersController');
 
 // Load Input Validation
 const validateRegisterInput = require('../../validation/register');
@@ -12,7 +13,7 @@ const validateLoginInput = require('../../validation/login');
 // @route   GET api/users/register
 // @desc    Register user
 // @access  Public
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { errors, isValid } = validateRegisterInput(req.body);
   const {
     username, name, email, password, plan,
@@ -23,26 +24,12 @@ router.post('/register', (req, res) => {
     return res.status(400).json(errors);
   }
 
-  // Check if user already exists
-  const docClient = new AWS.DynamoDB.DocumentClient();
-  const params = {
-    TableName: config.aws_table_name,
-    KeyConditionExpression: 'username = :i',
-    ExpressionAttributeValues: {
-      ':i': username,
-    },
-  };
+  // Get user info
+  const userData = await users.getUserInfo(username);
 
-  docClient.query(params, (err, user) => {
-    if (err) {
-      res.status(500).json({ Error: err.message });
-    }
-
-    // If user exists, return error
-    if (user.Count > 0) {
-      errors.username = 'Username already exists';
-      return res.status(400).json(errors);
-    }
+  if (userData) {
+    res.json({ error: 'User already exists ' });
+  } else {
     // If not, create new user and insert into database
 
     let credits = 0;
@@ -63,7 +50,7 @@ router.post('/register', (req, res) => {
 
     // Encrypt data before storing in DB
     bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(password, salt, (err, hash) => {
+      bcrypt.hash(password, salt, async (err, hash) => {
         if (err) {
           throw err;
         }
@@ -79,29 +66,19 @@ router.post('/register', (req, res) => {
             credits,
           },
         };
-        // Insert new user into the database
-        docClient.put(newUser, (err, data) => {
-          if (err) {
-            res.send({
-              success: false,
-              message: `Error: ${err.stack}`,
-            });
-          } else {
-            res.json({
-              success: true,
-              data: 'Added new user',
-            });
-          }
-        });
+
+        // Create new user and return response
+        const createNewUser = await users.createUser(newUser);
+        res.json({ success: true, data: 'Added new user' });
       });
     });
-  });
+  }
 });
 
 // @route   GET api/users/login
 // @desc    Login user / Returning JWT Token
 // @access  Public
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { errors, isValid } = validateLoginInput(req.body);
   const { username, password } = req.body;
 
@@ -110,48 +87,37 @@ router.post('/login', (req, res) => {
     return res.status(400).json(errors);
   }
 
-  // Find user by username
-  AWS.config.update(config.aws_remote_config);
-  const docClient = new AWS.DynamoDB.DocumentClient();
-  const params = {
-    TableName: config.aws_table_name,
-    KeyConditionExpression: 'username = :i',
-    ExpressionAttributeValues: {
-      ':i': username,
-    },
-  };
-  docClient.query(params, (err, user) => {
-    if (err) {
-      res.status(500).json({ Error: err.message });
-    }
+  // Get user info
+  const userData = await users.getUserInfo(username);
 
-    // If user is not found, return error
-    if (user.Count === 0) {
-      errors.username = 'Username not found';
-      return res.status(404).json(errors);
-    }
-    // If found, compare password
-    const { password: hashPassword, username, email } = user.Items[0];
-    // Verify password
-    bcrypt.compare(password, hashPassword).then((isMatch) => {
-      if (isMatch) {
-        // Create JWT Payload
-        const payload = {
-          username,
-          email,
-        };
-        // Sign token and return to user
-        jwt.sign(payload, process.env.SECRET_OR_KEY, { expiresIn: 3600 }, (err, token) => {
-          res.json({
-            success: true,
-            token: `Bearer ${token}`,
-          });
+  // Return error if user is not found
+  if (!userData) {
+    errors.username = 'Username not found';
+    return res.status(404).json(errors);
+  }
+
+  // If user is found, compare password
+  const { password: hashPassword, email } = userData;
+
+  // Verify password
+  bcrypt.compare(password, hashPassword).then((isMatch) => {
+    if (isMatch) {
+      // Create JWT Payload
+      const payload = {
+        username,
+        email,
+      };
+      // Sign token and return to user
+      jwt.sign(payload, process.env.SECRET_OR_KEY, { expiresIn: 3600 }, (err, token) => {
+        res.json({
+          success: true,
+          token: `Bearer ${token}`,
         });
-      } else {
-        errors.password = 'Password incorrect';
-        return res.status(400).json(errors);
-      }
-    });
+      });
+    } else {
+      errors.password = 'Password incorrect';
+      return res.status(400).json(errors);
+    }
   });
 });
 
