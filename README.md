@@ -3,7 +3,7 @@
 ## Summary
 This is a backend api service which will allow new and exisiting user to do the follow:
 * Register new user
-  * Required inputs: username, name, email, password, plan
+  * Required fields: username, name, email, password, plan
   * User will recieve 10, 20, or 30 tokens based on plan selected
 * Login with username and password (returns jwt token)
 * Make requests to geocoding api for 1 credits
