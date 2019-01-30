@@ -1,15 +1,18 @@
 # Node.js with Google APIs
 
 ## Summary
-This is a backend api service which will allow new and exisiting user to do the follow:
+This is a backend api service that leverages Google's Geocoding and Timezone API. The application is deployed using AWS Elastic Beanstalk and DynamoDB for the database. 
+
+Users will be able to do the following below:
+
 * Register new user
   * Required fields: username, name, email, password, plan
-  * User will recieve 10, 20, or 30 tokens based on plan selected
+  * User will recieve 10, 20, or 30 tokens based on plan selected (basic, plus, premium)
 * Login with username and password (returns jwt token)
 * Make requests to geocoding api for 1 credits
 * Make requests to timezone api for 2 credits
 * Make a batch request to geocoding api that will run 5 calls concurrently
-* Users can only make max of 15 requests per hour
+* Users are limited to 15 requests per hour
 * Users will not be able to make anymore requests if they do not have enough credits
 
 ## Modules used
