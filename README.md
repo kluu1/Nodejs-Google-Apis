@@ -26,14 +26,14 @@ Users will be able to do the following below:
 * Express-Rate-Limit
 
 ## Routes
-* POST api/users/register
+* POST /api/users/register
   - Required: username, name, password, plan
-* POST api/users/login
+* POST /api/users/login
   - Required: username, password
-* POST api/geocoding
+* POST /api/geocoding
   - Required: JWT Token, address
-* POST api/geocoding/batch
+* POST /api/geocoding/batch
   - Required: JWT Token, Object with array of addresses
   - { "addresses": [ "3200 Holcomb Bridge Rd", "5805 State Bridge Rd" }
-* POST POST api/timezone
+* POST /api/timezone
   - Required: JWT Token
