@@ -1,7 +1,7 @@
 # Node.js with Google APIs
 
 ## Summary
-This is a backend api service that leverages Google's Geocoding and Timezone API. The application is deployed using AWS Elastic Beanstalk and DynamoDB for the database. 
+This is a backend api service that leverages Google's Geocoding and Timezone API. The application was developed to be deployed on AWS leveraging DynamoDB.
 
 Users will be able to do the following below:
 
